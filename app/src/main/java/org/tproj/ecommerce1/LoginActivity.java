@@ -112,8 +112,16 @@ public class LoginActivity extends AppCompatActivity {
 
                     // Users usersData = dataSnapshot.child(parentDbName).child(phone.toString()).getValue(Users.class);
                     DataSnapshot snap = dataSnapshot.child(parentDbName).child(phone.toString());
-                    String phoneConv = Long.toString((Long)snap.child("phone").getValue());
-                    String passwordConv = (String) snap.child("password").getValue();
+                    String phoneConv = "";
+                    String passwordConv = "";
+                    if(parentDbName == "Admins"){
+                        phoneConv = Long.toString((Long)snap.child("phone").getValue());
+                        passwordConv = Long.toString((Long)snap.child("password").getValue());
+                    }
+                    else{
+                        phoneConv = (String) snap.child("phone").getValue();
+                        passwordConv = (String) snap.child("password").getValue();
+                    }
                     Users usersData = new Users("", phoneConv, passwordConv, "", "");
 
                     if (usersData.getPhone().equals(phone)) {
@@ -121,7 +129,7 @@ public class LoginActivity extends AppCompatActivity {
                             if(parentDbName.equals("Admins")){
                                 Toast.makeText(LoginActivity.this, "Welcome Admin, you are logged in Successfully...", Toast.LENGTH_SHORT).show();
                                 loadingBar.dismiss();
-                                Intent intent = new Intent(LoginActivity.this, AdminAddNewProductActivity.class);
+                                Intent intent = new Intent(LoginActivity.this, AdminCategoryActivity.class);
                                 Prevalent.currentOnlineUser = usersData;
                                 startActivity(intent);
                             }
