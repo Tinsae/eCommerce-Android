@@ -4,6 +4,7 @@ import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -32,6 +33,7 @@ public class LoginActivity extends AppCompatActivity {
     private String parentDbName = "Users";
 
     private CheckBox chkBoxRememberMe;
+    private TextView AdminLink, NotAdminLink;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -41,6 +43,8 @@ public class LoginActivity extends AppCompatActivity {
         LoginButton = (Button) findViewById(R.id.login_btn);
         InputPassword = (EditText) findViewById(R.id.login_password_input);
         InputPhoneNumber = (EditText) findViewById(R.id.login_phone_number_input);
+        AdminLink = (TextView) findViewById(R.id.admin_panel_link);
+        NotAdminLink = (TextView) findViewById(R.id.not_admin_panel_link);
         loadingBar = new ProgressDialog(this);
 
         chkBoxRememberMe = (CheckBox) findViewById(R.id.remember_me_chkb);
@@ -50,6 +54,26 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 LoginUser();
+            }
+        });
+        AdminLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                LoginButton.setText("Login Admin");
+                AdminLink.setVisibility(View.INVISIBLE);
+                NotAdminLink.setVisibility(View.VISIBLE);
+                parentDbName = "Admins";
+            }
+        });
+        NotAdminLink.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view)
+            {
+                LoginButton.setText("Login");
+                AdminLink.setVisibility(View.VISIBLE);
+                NotAdminLink.setVisibility(View.INVISIBLE);
+                parentDbName = "Users";
             }
         });
     }
@@ -77,7 +101,7 @@ public class LoginActivity extends AppCompatActivity {
             Paper.book().write(Prevalent.UserPhoneKey, phone);
             Paper.book().write(Prevalent.UserPasswordKey, password);
         }
-
+//        Log.i("LoginActivity: ", parentDbName);
         final DatabaseReference RootRef;
         RootRef = FirebaseDatabase.getInstance().getReference();
 
@@ -85,15 +109,29 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if (dataSnapshot.child(parentDbName).child(phone).exists()) {
-                    Users usersData = dataSnapshot.child(parentDbName).child(phone).getValue(Users.class);
+
+                    // Users usersData = dataSnapshot.child(parentDbName).child(phone.toString()).getValue(Users.class);
+                    DataSnapshot snap = dataSnapshot.child(parentDbName).child(phone.toString());
+                    String phoneConv = Long.toString((Long)snap.child("phone").getValue());
+                    String passwordConv = (String) snap.child("password").getValue();
+                    Users usersData = new Users("", phoneConv, passwordConv, "", "");
+
                     if (usersData.getPhone().equals(phone)) {
                         if (usersData.getPassword().equals(password)) {
-                            Toast.makeText(LoginActivity.this, "logged in Successfully...", Toast.LENGTH_SHORT).show();
-                            loadingBar.dismiss();
-                            Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
-                            Prevalent.currentOnlineUser = usersData;
-                            startActivity(intent);
-
+                            if(parentDbName.equals("Admins")){
+                                Toast.makeText(LoginActivity.this, "Welcome Admin, you are logged in Successfully...", Toast.LENGTH_SHORT).show();
+                                loadingBar.dismiss();
+                                Intent intent = new Intent(LoginActivity.this, AdminAddNewProductActivity.class);
+                                Prevalent.currentOnlineUser = usersData;
+                                startActivity(intent);
+                            }
+                            else if(parentDbName.equals("Users")) {
+                                Toast.makeText(LoginActivity.this, "logged in Successfully...", Toast.LENGTH_SHORT).show();
+                                loadingBar.dismiss();
+                                Intent intent = new Intent(LoginActivity.this, HomeActivity.class);
+                                Prevalent.currentOnlineUser = usersData;
+                                startActivity(intent);
+                            }
                         } else {
                             loadingBar.dismiss();
                             Toast.makeText(LoginActivity.this, "Password is incorrect.", Toast.LENGTH_SHORT).show();
