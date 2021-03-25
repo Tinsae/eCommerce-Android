@@ -114,6 +114,7 @@ public class LoginActivity extends AppCompatActivity {
                     DataSnapshot snap = dataSnapshot.child(parentDbName).child(phone.toString());
                     String phoneConv = "";
                     String passwordConv = "";
+                    String name = (String) snap.child("name").getValue();
                     if(parentDbName == "Admins"){
                         phoneConv = Long.toString((Long)snap.child("phone").getValue());
                         passwordConv = Long.toString((Long)snap.child("password").getValue());
@@ -122,7 +123,9 @@ public class LoginActivity extends AppCompatActivity {
                         phoneConv = (String) snap.child("phone").getValue();
                         passwordConv = (String) snap.child("password").getValue();
                     }
-                    Users usersData = new Users("", phoneConv, passwordConv, "", "");
+                    Users usersData = new Users(name, phoneConv, passwordConv, "", "");
+//                    Log.i("current user name",usersData.getName());
+//                    Log.i("current user phone",usersData.getPhone());
 
                     if (usersData.getPhone().equals(phone)) {
                         if (usersData.getPassword().equals(password)) {
