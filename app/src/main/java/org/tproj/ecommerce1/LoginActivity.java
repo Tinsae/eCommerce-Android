@@ -115,6 +115,8 @@ public class LoginActivity extends AppCompatActivity {
                     String phoneConv = "";
                     String passwordConv = "";
                     String name = (String) snap.child("name").getValue();
+                    String image = (String) snap.child("image").getValue();
+
                     if(parentDbName == "Admins"){
                         phoneConv = Long.toString((Long)snap.child("phone").getValue());
                         passwordConv = Long.toString((Long)snap.child("password").getValue());
@@ -123,7 +125,7 @@ public class LoginActivity extends AppCompatActivity {
                         phoneConv = (String) snap.child("phone").getValue();
                         passwordConv = (String) snap.child("password").getValue();
                     }
-                    Users usersData = new Users(name, phoneConv, passwordConv, "", "");
+                    Users usersData = new Users(name, phoneConv, passwordConv, image, "");
 //                    Log.i("current user name",usersData.getName());
 //                    Log.i("current user phone",usersData.getPhone());
 
